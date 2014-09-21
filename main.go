@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -23,6 +24,7 @@ func in(slice []string, str string) bool {
 var acceptedImageExt = []string{".png", ".gif", ".jpg", ".jpeg", ".webp"}
 var images = []string{}
 var dirPath = "."
+var photosPerPage = 5
 
 var chttp = http.NewServeMux()
 
@@ -55,12 +57,56 @@ func foo(w http.ResponseWriter, r *http.Request) {
 		chttp.ServeHTTP(w, r)
 	} else {
 
-		t, err := template.New("foo").Parse(`{{ range . }}<h1>{{ . }}</h1><p><img src={{ . }}></p>{{ end }}`)
+		r.ParseForm()
+
+		pageStr := r.FormValue("page")
+
+		page, err := strconv.Atoi(pageStr)
+		if err != nil {
+			fmt.Println("invalid param for page, zeroing")
+			page = 0
+		}
+
+		fmt.Println("No. of images:", len(images))
+
+		offset := page * photosPerPage
+		limit := offset + photosPerPage
+
+		if offset > len(images) {
+			offset = len(images)
+		}
+
+		if limit > len(images) {
+			limit = len(images)
+		}
+
+		prev := page - 1
+		if prev < 0 {
+			prev = 0
+		}
+
+		fmt.Println("Page:", page)
+
+		tmplParams := struct {
+			Photos []string
+			Next   int
+			Prev   int
+		}{
+			Photos: images[offset:limit],
+			Next:   page + 1,
+			Prev:   prev,
+		}
+
+		t, err := template.New("foo").Parse(`
+		<a href="/?page={{ .Next }}">Next</a><a href="/?page={{ .Prev }}">Prev</a>
+		{{ range .Photos }}<h1>{{ . }}</h1><p><img src={{ . }}></p>{{ end }}
+		<a href="/?page={{ .Next }}">Next</a><a href="/?page={{ .Prev }}">Prev</a>
+		`)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		t.Execute(w, images)
+		t.Execute(w, tmplParams)
 	}
 }
