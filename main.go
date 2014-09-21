@@ -35,6 +35,15 @@ func main() {
 
 	fmt.Println("foo dirPath", dirPath)
 
+	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
+		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
+			images = append(images, filePath)
+		}
+		return nil
+	})
+
+	fmt.Println(images)
+
 	chttp.Handle("/", http.FileServer(http.Dir("/")))
 	http.HandleFunc("/", foo)
 	http.ListenAndServe(":3000", nil)
@@ -45,17 +54,6 @@ func foo(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(r.URL.Path, ".") {
 		chttp.ServeHTTP(w, r)
 	} else {
-
-		fmt.Println("foo dirPath", dirPath)
-
-		filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
-			if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
-				images = append(images, filePath)
-			}
-			return nil
-		})
-
-		fmt.Println(images)
 
 		t, err := template.New("foo").Parse(`{{ range . }}<h1>{{ . }}</h1><p><img src={{ . }}></p>{{ end }}`)
 		if err != nil {
