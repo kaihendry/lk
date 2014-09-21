@@ -4,28 +4,31 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
 
+var chttp = http.NewServeMux()
+
 func main() {
+	chttp.Handle("/", http.FileServer(http.Dir("./")))
 	http.HandleFunc("/", foo)
-
-	// We don't want this since the path to image is missing its path
-	// http.Handle("/p/", http.StripPrefix("/p/", http.FileServer(http.Dir("./a/long/path/"))))
-
-	// Wonder how to prevent file listings upon /p/
-	http.Handle("/p/", http.StripPrefix("/p/", http.FileServer(http.Dir("."))))
 	http.ListenAndServe(":3000", nil)
 }
 
 func foo(w http.ResponseWriter, r *http.Request) {
 
-	images, _ := filepath.Glob("./a/long/path/*.jpg")
+	if strings.Contains(r.URL.Path, ".") {
+		chttp.ServeHTTP(w, r)
+	} else {
 
-	t, err := template.New("foo").Parse(`{{ range . }}<h1>{{ . }}</h1><p><img src=/p/{{ . }}></p>{{ end }}`)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		images, _ := filepath.Glob("./a/long/path/*.jpg")
+
+		t, err := template.New("foo").Parse(`{{ range . }}<h1>{{ . }}</h1><p><img src=./{{ . }}></p>{{ end }}`)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		t.Execute(w, images)
 	}
-
-	t.Execute(w, images)
 }
