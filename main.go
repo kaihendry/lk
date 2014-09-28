@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"path"
@@ -24,8 +25,6 @@ var acceptedImageExt = []string{".png", ".gif", ".jpg", ".jpeg", ".webp"}
 var images = []string{}
 var dirPath = "."
 
-var chttp = http.NewServeMux()
-
 func main() {
 
 	flag.Parse()
@@ -42,25 +41,26 @@ func main() {
 		return nil
 	})
 
-	fmt.Println(images)
-
-	chttp.Handle("/", http.FileServer(http.Dir("/")))
+	http.Handle("/o/", http.StripPrefix("/o/", http.FileServer(http.Dir("/"))))
+	http.Handle("/t/", http.StripPrefix("/t/", (http.FileServer(http.Dir("/home/hendry/.cache/sxiv")))))
 	http.HandleFunc("/", foo)
 	http.ListenAndServe(":3000", nil)
 }
 
+func loggingHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("right", r.Method, r.URL.Path)
+		h.ServeHTTP(w, r)
+	})
+}
+
 func foo(w http.ResponseWriter, r *http.Request) {
 
-	if strings.Contains(r.URL.Path, ".") {
-		chttp.ServeHTTP(w, r)
-	} else {
-
-		t, err := template.New("foo").Parse(`{{ range . }}<h1>{{ . }}</h1><p><img src={{ . }}></p>{{ end }}`)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		t.Execute(w, images)
+	t, err := template.New("foo").Parse(`{{ range . }}<a title={{ . }} href=/o/{{ . }}><img width=160 src="/t/{{ . }}.jpg"></a>{{ end }}`)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	t.Execute(w, images)
 }
