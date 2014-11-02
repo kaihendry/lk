@@ -33,12 +33,11 @@ func main() {
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
 
-	fmt.Println("lk dirPath", dirPath)
+	fmt.Println("lk is serving", dirPath, "from http://0.0.0.0:3000")
 
 	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
 		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
 			thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
-			fmt.Println(thumbnail)
 			if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
 				fmt.Println("Missing thumbnail:", thumbnail)
 				genthumb(filePath, thumbnail)
