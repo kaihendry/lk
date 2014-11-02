@@ -21,7 +21,7 @@ func in(slice []string, str string) bool {
 	return false
 }
 
-var acceptedImageExt = []string{".png", ".gif", ".jpg", ".jpeg", ".webp"}
+var acceptedImageExt = []string{".jpg", ".jpeg"}
 var images = []string{}
 var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/sxiv")
 var dirPath = "."
