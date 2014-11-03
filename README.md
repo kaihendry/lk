@@ -9,7 +9,7 @@ Simple Web Image Viewer, to replace IOS Photos & iCloud
 
 ### Binaries
 
-Produced with the slower <https://github.com/nfnt/resize> since <https://github.com/3d0c/imgproc> is not easily portable.
+Produced with the slower <https://github.com/nfnt/resize> since <https://github.com/3d0c/imgproc> is [not easily portable](https://github.com/mitchellh/gox/issues/24#issuecomment-61451672). :/
 
 <http://lk.dabase.com/>
 
