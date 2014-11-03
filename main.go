@@ -62,7 +62,10 @@ func loggingHandler(h http.Handler) http.Handler {
 
 func lk(w http.ResponseWriter, r *http.Request) {
 
-	t, err := template.New("foo").Parse(`{{ range . }}<a title={{ . }} href=/o{{ . }}><img width=160 src="/t{{ . }}.jpg"></a>{{ end }}`)
+	t, err := template.New("foo").Parse(`{{ range . }}<a title={{ . }} href=/o{{ . }}>
+<img width=160 src="/t{{ . }}.jpg">
+</a>
+{{ end }}`)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
