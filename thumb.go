@@ -2,44 +2,47 @@ package main
 
 import (
 	"fmt"
-	"github.com/nfnt/resize"
-	"image/jpeg"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+
+	img "github.com/3d0c/imgproc"
 )
 
 func genthumb(src string, dst string) (err error) {
 
 	fmt.Println("Resizing:", src, dst)
-	// open "test.jpg"
-	file, err := os.Open(src)
+
+	base := img.NewSource(src)
+	if base == nil {
+		log.Fatal(base)
+	}
+
+	target := &img.Options{
+		Base:    base,
+		Scale:   img.NewScale("160x"),
+		Method:  3,
+		Quality: 80,
+	}
+
+	target.Format = "jpg"
+
+	t := img.Proc(target)
+
+	if t != nil {
+		dir, _ := filepath.Split(dst)
+		err = os.MkdirAll(dir, 0700)
+		if err != nil {
+			return
+		}
+
+	}
+
+	err = ioutil.WriteFile(dst, t, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// decode jpeg into image.Image
-	img, err := jpeg.Decode(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	file.Close()
-
-	m := resize.Thumbnail(160, 120, img, resize.NearestNeighbor)
-
-	dir, _ := filepath.Split(dst)
-	err = os.MkdirAll(dir, 0700)
-	if err != nil {
-		return
-	}
-	out, err := os.Create(dst)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer out.Close()
-
-	// write new image to file
-	jpeg.Encode(out, m, nil)
 
 	return
 
