@@ -47,7 +47,14 @@ func main() {
 		return nil
 	})
 
-	http.Handle("/o/", http.StripPrefix("/o/", http.FileServer(http.Dir("/"))))
+	http.HandleFunc("/o/", func(w http.ResponseWriter, r *http.Request) {
+		origimg := r.URL.Path[2:]
+		if in(acceptedImageExt, strings.ToLower(path.Ext(origimg))) {
+			http.ServeFile(w, r, origimg)
+		} else {
+			http.Error(w, "Not found.", http.StatusNotFound)
+		}
+	})
 	http.Handle("/t/", http.StripPrefix("/t/", (http.FileServer(http.Dir(dirThumbs)))))
 	http.HandleFunc("/", lk)
 	http.ListenAndServe(":3000", nil)
