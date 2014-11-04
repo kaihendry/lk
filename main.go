@@ -23,7 +23,7 @@ func in(slice []string, str string) bool {
 
 var acceptedImageExt = []string{".jpg", ".jpeg"}
 var images = []string{}
-var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/sxiv")
+var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
 
 func main() {
@@ -59,7 +59,7 @@ func main() {
 func lk(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.New("foo").Parse(`{{ range . }}<a title={{ . }} href=/o{{ . }}>
-<img width=160 src="/t{{ . }}.jpg">
+<img width=100 src="/t{{ . }}.jpg">
 </a>
 {{ end }}`)
 	if err != nil {

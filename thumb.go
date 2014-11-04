@@ -7,28 +7,28 @@ import (
 	"os"
 	"path/filepath"
 
-	img "github.com/3d0c/imgproc"
+	"github.com/3d0c/imgproc"
 )
 
 func genthumb(src string, dst string) (err error) {
 
 	fmt.Println("Resizing:", src, dst)
 
-	base := img.NewSource(src)
+	base := imgproc.NewSource(src)
 	if base == nil {
 		log.Fatal(base)
 	}
 
-	target := &img.Options{
+	// Crop 100x100 pixel from center
+	target := &imgproc.Options{
 		Base:    base,
-		Scale:   img.NewScale("160x"),
+		Crop:    imgproc.NewRoi("center,100,100"),
 		Method:  3,
-		Quality: 80,
+		Format:  "jpg",
+		Quality: 100,
 	}
 
-	target.Format = "jpg"
-
-	t := img.Proc(target)
+	t := imgproc.Proc(target)
 
 	if t != nil {
 		dir, _ := filepath.Split(dst)
