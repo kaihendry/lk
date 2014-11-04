@@ -1,9 +1,9 @@
 lk - local kuvat (pictures)
 ==
 
-Simple Web Image Viewer, to replace IOS Photos & iCloud
+Simple Web Image Viewer for a LAN, to replace IOS Photos & iCloud for sharing amongst friends and family
 
-<img src=http://s.natalian.org/2014-11-03/1415008524_1364x748.png>
+<img src=http://s.natalian.org/2014-11-04/1415101126_613x384.png>
 
 <http://youtu.be/BQHzfpIEmwk>
 
