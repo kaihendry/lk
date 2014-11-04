@@ -21,10 +21,10 @@ func genthumb(src string, dst string) (err error) {
 
 	target := &imgproc.Options{
 		Base:    base,
-		Scale:   imgproc.NewScale("200"),
+		Scale:   imgproc.NewScale("800"),
 		Method:  3,
 		Format:  "jpg",
-		Quality: 80,
+		Quality: 100,
 	}
 
 	base = imgproc.NewSource(imgproc.Proc(target))
@@ -32,10 +32,10 @@ func genthumb(src string, dst string) (err error) {
 	// Crop 100x100 pixel from center
 	target = &imgproc.Options{
 		Base:    base,
-		Crop:    imgproc.NewRoi("center,100,100"),
+		Crop:    imgproc.NewRoi("center,400,400"),
 		Method:  3,
 		Format:  "jpg",
-		Quality: 100,
+		Quality: 80,
 	}
 
 	t := imgproc.Proc(target)

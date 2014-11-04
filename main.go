@@ -39,7 +39,6 @@ func main() {
 		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
 			thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
 			if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
-				fmt.Println("Missing thumbnail:", thumbnail)
 				genthumb(filePath, thumbnail)
 			}
 			images = append(images, filePath)
@@ -58,14 +57,15 @@ func main() {
 
 func lk(w http.ResponseWriter, r *http.Request) {
 
-	t, err := template.New("foo").Parse(`{{ range . }}<a title={{ . }} href=/o{{ . }}>
-<img width=100 src="/t{{ . }}.jpg">
-</a>
-{{ end }}`)
+	fp := path.Join("templates", "index.html")
+	tmpl, err := template.ParseFiles(fp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	t.Execute(w, images)
+	if err := tmpl.Execute(w, images); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 }
