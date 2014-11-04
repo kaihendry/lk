@@ -53,14 +53,7 @@ func main() {
 	http.Handle("/t/", http.StripPrefix(path.Join("/t", dirPath), http.FileServer(http.Dir(path.Join(dirThumbs, dirPath)))))
 
 	http.HandleFunc("/", lk)
-	http.ListenAndServe(":3000", nil)
-}
-
-func loggingHandler(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("right", r.Method, r.URL.Path)
-		h.ServeHTTP(w, r)
-	})
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
 func lk(w http.ResponseWriter, r *http.Request) {
