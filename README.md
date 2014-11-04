@@ -11,7 +11,7 @@ Simple Web Image Viewer for a LAN, to replace IOS Photos & iCloud for sharing am
 
 ### Binaries
 
-Produced with the slower <https://github.com/nfnt/resize> since <https://github.com/3d0c/imgproc> is [not easily portable](https://github.com/mitchellh/gox/issues/24#issuecomment-61451672). :/
+Produced with the slower <https://github.com/nfnt/resize> (which also doesn't crop) since <https://github.com/3d0c/imgproc> is [not easily portable](https://github.com/mitchellh/gox/issues/24#issuecomment-61451672). :/
 
 <http://lk.dabase.com/>
 
