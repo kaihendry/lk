@@ -47,8 +47,11 @@ func main() {
 		return nil
 	})
 
-	http.Handle("/o/", http.StripPrefix("/o/", http.FileServer(http.Dir("/"))))
-	http.Handle("/t/", http.StripPrefix("/t/", (http.FileServer(http.Dir(dirThumbs)))))
+	// Don't allow path under dirPath to be viewed
+	// http://www.reddit.com/r/golang/comments/2l59wk/web_based_jpg_viewer_for_sharing_images_on_a_lan/clrpbyo
+	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
+	http.Handle("/t/", http.StripPrefix(path.Join("/t", dirPath), http.FileServer(http.Dir(path.Join(dirThumbs, dirPath)))))
+
 	http.HandleFunc("/", lk)
 	http.ListenAndServe(":3000", nil)
 }
