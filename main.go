@@ -10,6 +10,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/skratchdot/open-golang/open"
 )
 
 func in(slice []string, str string) bool {
@@ -51,6 +53,7 @@ func main() {
 
 	http.HandleFunc("/", lk)
 	fmt.Println("lk is serving", dirPath, "from http://0.0.0.0:3000")
+	open.Start("http://0.0.0.0:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
