@@ -23,7 +23,7 @@ func in(slice []string, str string) bool {
 
 var acceptedImageExt = []string{".jpg", ".jpeg"}
 var images = []string{}
-var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/sxiv")
+var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
 
 func main() {
@@ -33,13 +33,10 @@ func main() {
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
 
-	fmt.Println("lk is serving", dirPath, "from http://0.0.0.0:3000")
-
 	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
 		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
 			thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
 			if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
-				fmt.Println("Missing thumbnail:", thumbnail)
 				genthumb(filePath, thumbnail)
 			}
 			images = append(images, filePath)
@@ -53,6 +50,7 @@ func main() {
 	http.Handle("/t/", http.StripPrefix(path.Join("/t", dirPath), http.FileServer(http.Dir(path.Join(dirThumbs, dirPath)))))
 
 	http.HandleFunc("/", lk)
+	fmt.Println("lk is serving", dirPath, "from http://0.0.0.0:3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
