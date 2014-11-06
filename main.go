@@ -59,10 +59,19 @@ func main() {
 
 func lk(w http.ResponseWriter, r *http.Request) {
 
-	t, err := template.New("foo").Parse(`{{ range . }}<a title={{ . }} href=/o{{ . }}>
-<img width=160 src="/t{{ . }}.jpg">
+	t, err := template.New("foo").Parse(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+</head>
+<body>
+{{ range . }}<a title="{{ . }}" href="/o{{ . }}">
+<img width=230 height=230 src="/t{{ . }}.jpg">
 </a>
-{{ end }}`)
+{{ end }}
+<p>By <a href=https://github.com/kaihendry/lk>lk</a></p>
+</body>
+</html>`)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

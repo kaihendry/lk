@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/nfnt/resize"
 	"image/jpeg"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/nfnt/resize"
 )
 
 func genthumb(src string, dst string) (err error) {
@@ -25,7 +26,7 @@ func genthumb(src string, dst string) (err error) {
 	}
 	file.Close()
 
-	m := resize.Thumbnail(160, 120, img, resize.NearestNeighbor)
+	m := resize.Thumbnail(460, 460, img, resize.NearestNeighbor)
 
 	dir, _ := filepath.Split(dst)
 	err = os.MkdirAll(dir, 0700)
