@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image/jpeg"
 	"log"
 	"os"
@@ -12,14 +11,11 @@ import (
 
 func genthumb(src string, dst string) (err error) {
 
-	fmt.Println("Resizing:", src, dst)
-	// open "test.jpg"
 	file, err := os.Open(src)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// decode jpeg into image.Image
 	img, err := jpeg.Decode(file)
 	if err != nil {
 		log.Fatal(err)

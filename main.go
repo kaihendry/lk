@@ -37,14 +37,20 @@ func main() {
 
 	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
 		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
-			thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
-			if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
-				genthumb(filePath, thumbnail)
-			}
 			images = append(images, filePath)
 		}
 		return nil
 	})
+
+	imgLength := len(images)
+
+	for i, filePath := range images {
+		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
+		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
+			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
+			genthumb(filePath, thumbnail)
+		}
+	}
 
 	// Don't allow path under dirPath to be viewed
 	// http://www.reddit.com/r/golang/comments/2l59wk/web_based_jpg_viewer_for_sharing_images_on_a_lan/clrpbyo
