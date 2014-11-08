@@ -1,0 +1,16 @@
+[Unit]
+# sudo cp lk.service /etc/systemd/system/
+# sudo systemctl enable lk.service
+Description=https://github.com/kaihendry/lk
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill lk1
+ExecStartPre=-/usr/bin/docker rm lk1
+ExecStartPre=/usr/bin/docker pull hendry/lk:latest
+ExecStart=/usr/bin/docker run --publish 3000:3000 -v /home/core/slides:/go/src/app/a --name lk1 --rm hendry/lk
+
+[Install]
+WantedBy=multi-user.target
