@@ -22,6 +22,24 @@ Produced with the slower <https://github.com/nfnt/resize> (which also doesn't cr
 * https://blog.golang.org/docker for Google Compute Engine information, which doesn't work for me <http://r2d2.webconverger.org/2014-11-09/gce.mp4>
 * [lk.service](lk.service) for CoreOS's systemd to keep it going
 
+### Nginx fragment to serve off port 80
+
+For a typical VPS running other services on nginx.
+
+	server {
+		server_name lk-demo.dabase.com;
+		location / {
+
+			proxy_pass         http://localhost:3000;
+			proxy_redirect     off;
+			proxy_set_header   Host $host;
+			proxy_set_header   X-Real-IP $remote_addr;
+			proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+			proxy_set_header   X-Forwarded-Host $server_name;
+
+		}
+	}
+
 ### Other local Web image viewers
 
 * <https://github.com/songgao/gallery>
