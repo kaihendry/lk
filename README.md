@@ -19,8 +19,8 @@ Produced with the slower <https://github.com/nfnt/resize> (which also doesn't cr
 ### Docker + CoreOS / Google Compute Engine
 
 * https://registry.hub.docker.com/u/hendry/lk/builds_history/79157/
-* https://blog.golang.org/docker for Google Compute Engine information
-* [[lk.service]] for CoreOS's systemd to keep it going
+* https://blog.golang.org/docker for Google Compute Engine information, which doesn't work for me <http://r2d2.webconverger.org/2014-11-09/gce.mp4>
+* [lk.service](lk.service) for CoreOS's systemd to keep it going
 
 ### Other local Web image viewers
 
