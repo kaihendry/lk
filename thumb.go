@@ -21,7 +21,7 @@ func genthumb(src string, dst string) (err error) {
 
 	path, err := exec.LookPath("vipsthumbnail")
 	if err == nil {
-		out, err := exec.Command(path, "-s", "460x460", "-o", dst, src).CombinedOutput()
+		out, err := exec.Command(path, "-t", "-s", "460x460", "-o", dst, src).CombinedOutput()
 		if err != nil {
 			fmt.Printf("The output is %s\n", out)
 			log.Fatal(err)
