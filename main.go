@@ -10,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/skratchdot/open-golang/open"
 )
@@ -27,10 +28,17 @@ var acceptedImageExt = []string{".jpg", ".jpeg"}
 var images = []string{}
 var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
+var VERSION = 0.1
+var showVersionFlag = flag.Bool("version", false, "Show version")
 
 func main() {
 
 	flag.Parse()
+
+	if *showVersionFlag {
+		fmt.Println("lk", VERSION, "https://github.com/kaihendry/lk")
+		os.Exit(0)
+	}
 
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
@@ -44,16 +52,22 @@ func main() {
 
 	imgLength := len(images)
 
+	start := time.Now()
+	thumbsGenerated := 0
 	for i, filePath := range images {
 		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
 		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
 			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
 			genthumb(filePath, thumbnail)
+			thumbsGenerated++
 		}
+	}
+	elapsed := time.Since(start)
+	if thumbsGenerated > 0 {
+		log.Printf("Generating %d thumbs took %s", thumbsGenerated, elapsed)
 	}
 
 	// Don't allow path under dirPath to be viewed
-	// http://www.reddit.com/r/golang/comments/2l59wk/web_based_jpg_viewer_for_sharing_images_on_a_lan/clrpbyo
 	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
 	http.Handle("/t/", http.StripPrefix(path.Join("/t", dirPath), http.FileServer(http.Dir(path.Join(dirThumbs, dirPath)))))
 

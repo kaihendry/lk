@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/disintegration/imaging"
+	"github.com/nfnt/resize"
 )
 
 func genthumb(src string, dst string) (err error) {
@@ -22,7 +22,7 @@ func genthumb(src string, dst string) (err error) {
 	}
 	file.Close()
 
-	m := imaging.Thumbnail(img, 460, 460, imaging.NearestNeighbor)
+	m := resize.Thumbnail(460, 460, img, resize.NearestNeighbor)
 
 	dir, _ := filepath.Split(dst)
 	err = os.MkdirAll(dir, 0700)
