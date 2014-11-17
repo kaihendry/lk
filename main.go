@@ -28,7 +28,7 @@ var acceptedImageExt = []string{".jpg", ".jpeg"}
 var images = []string{}
 var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
-var VERSION = 0.1
+var gitVersion string
 var showVersionFlag = flag.Bool("version", false, "Show version")
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersionFlag {
-		fmt.Println("lk", VERSION, "https://github.com/kaihendry/lk")
+		fmt.Println("lk", gitVersion, "https://github.com/kaihendry/lk")
 		os.Exit(0)
 	}
 
