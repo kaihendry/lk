@@ -70,6 +70,7 @@ func main() {
 	// Don't allow path under dirPath to be viewed
 	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
 	http.Handle("/t/", http.StripPrefix(path.Join("/t", dirPath), http.FileServer(http.Dir(path.Join(dirThumbs, dirPath)))))
+	http.HandleFunc("/favicon.ico", http.NotFound)
 
 	http.HandleFunc("/", lk)
 	fmt.Println("lk is serving", dirPath, "from http://0.0.0.0:3000")
@@ -86,7 +87,7 @@ func lk(w http.ResponseWriter, r *http.Request) {
 </head>
 <body>
 {{ range . }}<a title="{{ . }}" href="/o{{ . }}">
-<img width=230 height=230 src="/t{{ . }}.jpg">
+<img alt="" width=230 height=230 src="/t{{ . }}.jpg">
 </a>
 {{ end }}
 <p>By <a href=https://github.com/kaihendry/lk>lk</a></p>
@@ -98,4 +99,7 @@ func lk(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Execute(w, images)
+
+	log.Printf("%s %s %s %s\n", r.RemoteAddr, r.Method, r.URL, r.UserAgent())
+
 }
