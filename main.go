@@ -58,7 +58,7 @@ func main() {
 		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
 		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
 			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
-			genthumb(filePath, thumbnail)
+			go genthumb(filePath, thumbnail)
 			thumbsGenerated++
 		}
 	}
