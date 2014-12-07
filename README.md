@@ -9,7 +9,7 @@ iCloud for sharing amongst friends and family
 <img src=http://s.natalian.org/2014-11-04/lk-portrait.png alt="IOS Safari in portrait on an iPhone6">
 
 * <http://youtu.be/BQHzfpIEmwk>
-* [Video of my presenting it at a Golang meetup](http://youtu.be/IIuDygqCOJE)
+* [Video of the author presenting lk at a Golang meetup](http://youtu.be/IIuDygqCOJE)
 
 ### Binaries
 
