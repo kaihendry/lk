@@ -44,7 +44,8 @@ func main() {
 	dirPath, _ = filepath.Abs(directory)
 
 	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
-		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
+		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) && !strings.HasPrefix(path.Base(filePath), ".") {
+			log.Printf("Appending %s", filePath)
 			images = append(images, filePath)
 		}
 		return nil
