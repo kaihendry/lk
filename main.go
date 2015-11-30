@@ -83,10 +83,9 @@ func main() {
 		log.Panic(err)
 	}
 
-	if a, ok := ln.Addr().(*net.TCPAddr); ok {
-		fmt.Println("Opening on port: ", a.Port)
-	}
-	open.Start("http://" + ln.Addr().String())
+	host := "http://" + ln.Addr().String()
+	fmt.Println("Serving from", host)
+	open.Start(host)
 
 	if err := http.Serve(ln, nil); err != nil {
 		log.Panic(err)
