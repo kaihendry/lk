@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -58,6 +59,7 @@ func main() {
 		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
 		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
 			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
+			// TODO: make this spawn simultaneous jobs
 			genthumb(filePath, thumbnail)
 			thumbsGenerated++
 		}
@@ -73,9 +75,22 @@ func main() {
 	http.HandleFunc("/favicon.ico", http.NotFound)
 
 	http.HandleFunc("/", lk)
-	fmt.Println("lk is serving", dirPath, "from http://0.0.0.0:3000")
-	open.Start("http://0.0.0.0:3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+
+	// http://stackoverflow.com/a/33985208/4534
+	ln, err := net.Listen("tcp", ":0")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	if a, ok := ln.Addr().(*net.TCPAddr); ok {
+		fmt.Println("Opening on port: ", a.Port)
+	}
+	open.Start("http://" + ln.Addr().String())
+
+	if err := http.Serve(ln, nil); err != nil {
+		log.Panic(err)
+	}
+
 }
 
 func lk(w http.ResponseWriter, r *http.Request) {
