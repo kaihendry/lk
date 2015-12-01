@@ -45,10 +45,27 @@ func main() {
 	dirPath, _ = filepath.Abs(directory)
 
 	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
-		if err == nil && in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) && !strings.HasPrefix(path.Base(filePath), ".") {
+
+		if err != nil {
+			return err
+		}
+
+		// Skip any dot files
+		if strings.HasPrefix(filepath.Base(filePath), ".") {
+			// fmt.Println("Skipping", filePath)
+			if info.IsDir() {
+				return filepath.SkipDir
+			} else {
+				return nil
+			}
+		}
+
+		// Only append jpg images
+		if in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
 			log.Printf("Appending %s", filePath)
 			images = append(images, filePath)
 		}
+
 		return nil
 	})
 
