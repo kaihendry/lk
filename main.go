@@ -83,10 +83,12 @@ func main() {
 		log.Panic(err)
 	}
 
-	host := "http://" + ln.Addr().String()
-	fmt.Println("Serving from", host)
-	open.Start(host)
-
+	hostname, _ := os.Hostname()
+	if a, ok := ln.Addr().(*net.TCPAddr); ok {
+		host := fmt.Sprintf("http://%s:%d", hostname, a.Port)
+		fmt.Println("Serving from", host)
+		open.Start(host)
+	}
 	if err := http.Serve(ln, nil); err != nil {
 		log.Panic(err)
 	}
