@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -44,30 +45,18 @@ func main() {
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
 
-	filepath.Walk(dirPath, func(filePath string, info os.FileInfo, err error) error {
+	files, _ := ioutil.ReadDir(dirPath)
 
-		if err != nil {
-			return err
+	for _, f := range files {
+		if f.IsDir() {
+			fmt.Println(f.Name(), "is a directory")
 		}
-
-		// Skip any dot files
-		if strings.HasPrefix(filepath.Base(filePath), ".") {
-			// fmt.Println("Skipping", filePath)
-			if info.IsDir() {
-				return filepath.SkipDir
-			} else {
-				return nil
-			}
-		}
-
 		// Only append jpg images
-		if in(acceptedImageExt, strings.ToLower(path.Ext(filePath))) {
-			log.Printf("Appending %s", filePath)
-			images = append(images, filePath)
+		if in(acceptedImageExt, strings.ToLower(path.Ext(f.Name()))) {
+			log.Printf("Appending %s", f.Name())
+			images = append(images, filepath.Join(dirPath, f.Name()))
 		}
-
-		return nil
-	})
+	}
 
 	imgLength := len(images)
 

@@ -40,7 +40,7 @@ func genthumb(src string, dst string) (err error) {
 	}
 	file.Close()
 
-	m := resize.Thumbnail(460, 460, img, resize.NearestNeighbor)
+	m := resize.Thumbnail(460, 460, img, resize.Bicubic)
 
 	out, err := os.Create(dst)
 	if err != nil {
