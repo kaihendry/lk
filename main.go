@@ -31,6 +31,7 @@ var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
 var gitVersion string
 var showVersionFlag = flag.Bool("version", false, "Show version")
+var port = flag.Int("port", 0, "listen port")
 
 func main() {
 
@@ -52,7 +53,7 @@ func main() {
 	http.HandleFunc("/", lk)
 
 	// http://stackoverflow.com/a/33985208/4534
-	ln, err := net.Listen("tcp", ":0")
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -71,12 +72,12 @@ func main() {
 
 func lk(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println("dirPath", dirPath, "Web path", r.URL.Path)
+	// fmt.Println("dirPath", dirPath, "Web path", r.URL.Path)
 	srcPath := filepath.Join(dirPath, r.URL.Path)
-	fmt.Println("Combined", srcPath)
+	// fmt.Println("Combined", srcPath)
 
 	files, err := ioutil.ReadDir(srcPath)
-	fmt.Println(files)
+	// fmt.Println(files)
 
 	if err != nil {
 		panic(err)
@@ -91,9 +92,9 @@ func lk(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		fmt.Println("Filename", f.Name())
+		// fmt.Println("Filename", f.Name())
 		if f.IsDir() {
-			fmt.Println(f.Name(), "is a directory")
+			// fmt.Println(f.Name(), "is a directory")
 			// TODO check they have a JPG in them?
 			dirs = append(dirs, filepath.Join(r.URL.Path, f.Name()))
 		}
