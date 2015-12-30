@@ -27,7 +27,6 @@ func in(slice []string, str string) bool {
 }
 
 var acceptedImageExt = []string{".jpg", ".jpeg"}
-var images = []string{}
 var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
 var gitVersion string
@@ -44,37 +43,6 @@ func main() {
 
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
-
-	files, _ := ioutil.ReadDir(dirPath)
-
-	for _, f := range files {
-		if f.IsDir() {
-			fmt.Println(f.Name(), "is a directory")
-		}
-		// Only append jpg images
-		if in(acceptedImageExt, strings.ToLower(path.Ext(f.Name()))) {
-			log.Printf("Appending %s", f.Name())
-			images = append(images, filepath.Join(dirPath, f.Name()))
-		}
-	}
-
-	imgLength := len(images)
-
-	start := time.Now()
-	thumbsGenerated := 0
-	for i, filePath := range images {
-		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
-		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
-			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
-			// TODO: make this spawn simultaneous jobs
-			genthumb(filePath, thumbnail)
-			thumbsGenerated++
-		}
-	}
-	elapsed := time.Since(start)
-	if thumbsGenerated > 0 {
-		log.Printf("Generating %d thumbs took %s", thumbsGenerated, elapsed)
-	}
 
 	// Don't allow path under dirPath to be viewed
 	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
@@ -103,13 +71,74 @@ func main() {
 
 func lk(w http.ResponseWriter, r *http.Request) {
 
+	fmt.Println("dirPath", dirPath, "Web path", r.URL.Path)
+	srcPath := filepath.Join(dirPath, r.URL.Path)
+	fmt.Println("Combined", srcPath)
+
+	files, err := ioutil.ReadDir(srcPath)
+	fmt.Println(files)
+
+	if err != nil {
+		panic(err)
+	}
+
+	dirs := []string{}
+	images := []string{}
+
+	for _, f := range files {
+
+		if strings.HasPrefix(filepath.Base(f.Name()), ".") {
+			continue
+		}
+
+		fmt.Println("Filename", f.Name())
+		if f.IsDir() {
+			fmt.Println(f.Name(), "is a directory")
+			// TODO check they have a JPG in them?
+			dirs = append(dirs, filepath.Join(r.URL.Path, f.Name()))
+		}
+		// Only append jpg images
+		if in(acceptedImageExt, strings.ToLower(path.Ext(f.Name()))) {
+			log.Printf("Appending %s", f.Name())
+			images = append(images, filepath.Join(srcPath, f.Name()))
+		}
+	}
+
+	imgLength := len(images)
+
+	start := time.Now()
+	thumbsGenerated := 0
+	for i, filePath := range images {
+		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
+		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
+			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
+			// TODO: make this spawn simultaneous jobs
+			genthumb(filePath, thumbnail)
+			thumbsGenerated++
+		}
+	}
+	elapsed := time.Since(start)
+	if thumbsGenerated > 0 {
+		log.Printf("Generating %d thumbs took %s", thumbsGenerated, elapsed)
+	}
+
 	t, err := template.New("foo").Parse(`<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
+<style>
+body { padding: 5px; font-size: 120%; }
+ol { display: flex-inline; padding: 0; }
+li { flex: 1; display: flex; padding-bottom: 0.4em; }
+li a { flex: 1; border: thin dotted black; text-decoration: none; padding: 0.3em; color: white; background-color: #0b5578; }
+</style>
 </head>
 <body>
-{{ range . }}<a title="{{ . }}" href="/o{{ . }}">
+<ol>
+{{ range .Dirs }}<li><a href="{{ . }}">{{ . }}</a></li>
+{{ end }}
+</ol>
+{{ range .Images }}<a title="{{ . }}" href="/o{{ . }}">
 <img alt="" width=230 height=230 src="/t{{ . }}.jpg">
 </a>
 {{ end }}
@@ -121,7 +150,15 @@ func lk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t.Execute(w, images)
+	data := struct {
+		Images []string
+		Dirs   []string
+	}{
+		images,
+		dirs,
+	}
+
+	t.Execute(w, data)
 
 	log.Printf("%s %s %s %s\n", r.RemoteAddr, r.Method, r.URL, r.UserAgent())
 
