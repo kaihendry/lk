@@ -13,13 +13,12 @@ iCloud for sharing amongst friends and family
 # Install
 
 	go get -u github.com/kaihendry/lk
-	go install github.com/kaihendry/lk
 
-# Docker + CoreOS / Google Compute Engine
+# Docker
 
-* https://registry.hub.docker.com/u/hendry/lk/builds_history/79157/
-* https://blog.golang.org/docker for Google Compute Engine information, which doesn't work for me <http://r2d2.webconverger.org/2014-11-09/gce.mp4>
 * [lk.service](lk.service) for CoreOS's systemd to keep it going
+
+	docker run -it -v /your/media:/srv -p 3000:3000 --rm hendry/lk
 
 # Other local Web image viewers
 

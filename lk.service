@@ -9,8 +9,10 @@ Requires=docker.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill lk1
 ExecStartPre=-/usr/bin/docker rm lk1
-ExecStartPre=/usr/bin/docker pull hendry/lk:latest
-ExecStart=/usr/bin/docker run --publish 3000:3000 -v /home/core/slides:/go/src/app/a --name lk1 --rm hendry/lk
+ExecStartPre=/usr/bin/docker pull hendry/lk
+ExecStart=/usr/bin/docker run --publish 3000:3000 -v /YOUR/MEDIA:/srv --name lk1 --rm hendry/lk
+RestartSec=10
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

@@ -143,7 +143,7 @@ li a { flex: 1; border: thin dotted black; text-decoration: none; padding: 0.3em
 <img alt="" width=230 height=230 src="/t{{ . }}.jpg">
 </a>
 {{ end }}
-<p>By <a href=https://github.com/kaihendry/lk>lk</a></p>
+<p>By <a href=https://github.com/kaihendry/lk>lk {{ .Version }}</a></p>
 </body>
 </html>`)
 	if err != nil {
@@ -152,11 +152,13 @@ li a { flex: 1; border: thin dotted black; text-decoration: none; padding: 0.3em
 	}
 
 	data := struct {
-		Images []string
-		Dirs   []string
+		Images  []string
+		Dirs    []string
+		Version string
 	}{
 		images,
 		dirs,
+		gitVersion,
 	}
 
 	t.Execute(w, data)
