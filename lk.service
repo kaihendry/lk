@@ -7,10 +7,10 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill lk1
-ExecStartPre=-/usr/bin/docker rm lk1
+ExecStartPre=-/usr/bin/docker kill lk
+ExecStartPre=-/usr/bin/docker rm lk
 ExecStartPre=/usr/bin/docker pull hendry/lk
-ExecStart=/usr/bin/docker run --publish 3000:3000 -v /YOUR/MEDIA:/srv --name lk1 --rm hendry/lk
+ExecStart=/usr/bin/docker run --publish 3000:3000 --name lk --rm hendry/lk
 RestartSec=10
 Restart=always
 

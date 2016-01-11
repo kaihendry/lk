@@ -18,7 +18,9 @@ iCloud for sharing amongst friends and family
 
 * [lk.service](lk.service) for CoreOS's systemd to keep it going
 
-	docker run -it -v /your/media:/srv -p 3000:3000 --rm hendry/lk
+How to run from Docker:
+
+	docker run -it -p 3000:3000 --rm -v /YOUR/JPEG/IMAGES/:/srv/ lk
 
 # Other local Web image viewers
 
