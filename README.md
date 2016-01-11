@@ -23,9 +23,11 @@ iCloud for sharing amongst friends and family
 
 * [/etc/systemd/system/lk.service](lk.service) for CoreOS's systemd to keep it going
 
+Using <https://caddyserver.com/>
+
 		docker run --name caddy --link lk -v /home/core/Caddyfile:/etc/Caddyfile -v /home/core/.caddy:/root/.caddy -p 80:80 -p 443:443 abiosoft/caddy
 
-`cat Caddyfile`
+Caddyfile:
 
 	lk.dabase.com {
 		tls hendry@webconverger.com
