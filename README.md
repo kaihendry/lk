@@ -23,13 +23,14 @@ iCloud for sharing amongst friends and family
 
 * [/etc/systemd/system/lk.service](lk.service) for CoreOS's systemd to keep it going
 
-
 		docker run --name caddy --link lk -v /home/core/Caddyfile:/etc/Caddyfile -v /home/core/.caddy:/root/.caddy -p 80:80 -p 443:443 abiosoft/caddy
 
-		lk.dabase.com {
-			tls hendry@webconverger.com
-			proxy / lk:3000
-		}
+`cat Caddyfile`
+
+	lk.dabase.com {
+		tls hendry@webconverger.com
+		proxy / lk:3000
+	}
 
 # Other local Web image viewers
 
