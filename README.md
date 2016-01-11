@@ -10,17 +10,25 @@ iCloud for sharing amongst friends and family
 * <http://youtu.be/BQHzfpIEmwk>
 * [Video of the author presenting lk at a Golang meetup](http://youtu.be/IIuDygqCOJE)
 
-# Install
+# Install from a system with Golang
 
 	go get -u github.com/kaihendry/lk
 
 # Docker
 
-* [lk.service](lk.service) for CoreOS's systemd to keep it going
+	docker pull hendry/lk
+	docker run -it -p 3000:3000 --rm -v /YOUR/JPEG/IMAGES/:/srv/ hendry/lk
 
-How to run from Docker:
+## Deploying Docker on CoreOS
 
-	docker run -it -p 3000:3000 --rm -v /YOUR/JPEG/IMAGES/:/srv/ lk
+* [/etc/systemd/system/lk.service](lk.service) for CoreOS's systemd to keep it going
+
+	docker run --name caddy --link lk -v /home/core/Caddyfile:/etc/Caddyfile -v /home/core/.caddy:/root/.caddy -p 80:80 -p 443:443 abiosoft/caddy
+
+	lk.dabase.com {
+		tls hendry@webconverger.com
+		proxy / lk:3000
+	}
 
 # Other local Web image viewers
 
