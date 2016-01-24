@@ -16,7 +16,6 @@ iCloud for sharing amongst friends and family
 
 # Docker
 
-	docker pull hendry/lk
 	docker run -it -p 3000:3000 --rm -v /YOUR/JPEG/IMAGES/:/srv/ hendry/lk
 
 ## Deploying Docker on CoreOS

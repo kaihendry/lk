@@ -12,7 +12,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/skratchdot/open-golang/open"
 )
@@ -38,7 +37,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersionFlag {
-		fmt.Println("lk", gitVersion, "https://github.com/kaihendry/lk")
+		log.Println("lk", gitVersion, "https://github.com/kaihendry/lk")
 		os.Exit(0)
 	}
 
@@ -47,10 +46,10 @@ func main() {
 
 	// Don't allow path under dirPath to be viewed
 	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
-	http.Handle("/t/", http.StripPrefix(path.Join("/t", dirPath), http.FileServer(http.Dir(path.Join(dirThumbs, dirPath)))))
 	http.HandleFunc("/favicon.ico", http.NotFound)
 
 	http.HandleFunc("/", lk)
+	http.HandleFunc("/t/", thumb)
 
 	// http://stackoverflow.com/a/33985208/4534
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
@@ -61,7 +60,7 @@ func main() {
 	hostname, _ := os.Hostname()
 	if a, ok := ln.Addr().(*net.TCPAddr); ok {
 		host := fmt.Sprintf("http://%s:%d", hostname, a.Port)
-		fmt.Println("Serving from", host)
+		log.Println("Serving from", host)
 		open.Start(host)
 	}
 	if err := http.Serve(ln, nil); err != nil {
@@ -70,14 +69,44 @@ func main() {
 
 }
 
+func thumb(w http.ResponseWriter, r *http.Request) {
+
+	// Make sure you can't go under the dirPath
+	if !strings.HasPrefix(r.URL.Path[2:], dirPath) {
+		http.NotFound(w, r)
+		return
+	}
+
+	thumbPath := filepath.Join(dirThumbs, r.URL.Path[2:])
+	if _, err := os.Stat(thumbPath); err != nil {
+		log.Println("THUMB:", thumbPath, "does not exist")
+		srcPath := r.URL.Path[2:]
+		if _, err := os.Stat(srcPath); err != nil {
+			log.Println("ORIGINAL", srcPath, "does not exist")
+			http.NotFound(w, r)
+			return
+		} else {
+			log.Println("Must generate thumb for", srcPath)
+			err := genthumb(srcPath, thumbPath)
+			if err != nil {
+				http.Error(w, err.Error(), 400)
+				return
+			}
+			log.Println("Created thumb", thumbPath)
+		}
+	}
+	log.Println("Serving thumb", thumbPath)
+	http.ServeFile(w, r, thumbPath)
+}
+
 func lk(w http.ResponseWriter, r *http.Request) {
 
-	// fmt.Println("dirPath", dirPath, "Web path", r.URL.Path)
+	// log.Println("dirPath", dirPath, "Web path", r.URL.Path)
 	srcPath := filepath.Join(dirPath, r.URL.Path)
-	// fmt.Println("Combined", srcPath)
+	// log.Println("Combined", srcPath)
 
 	files, err := ioutil.ReadDir(srcPath)
-	// fmt.Println(files)
+	// log.Println(files)
 
 	if err != nil {
 		panic(err)
@@ -92,9 +121,9 @@ func lk(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// fmt.Println("Filename", f.Name())
+		// log.Println("Filename", f.Name())
 		if f.IsDir() {
-			// fmt.Println(f.Name(), "is a directory")
+			// log.Println(f.Name(), "is a directory")
 			// TODO check they have a JPG in them?
 			dirs = append(dirs, filepath.Join(r.URL.Path, f.Name()))
 		}
@@ -103,24 +132,6 @@ func lk(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Appending %s", f.Name())
 			images = append(images, filepath.Join(srcPath, f.Name()))
 		}
-	}
-
-	imgLength := len(images)
-
-	start := time.Now()
-	thumbsGenerated := 0
-	for i, filePath := range images {
-		thumbnail := fmt.Sprintf("%s%s.jpg", dirThumbs, filePath)
-		if _, err := os.Stat(thumbnail); os.IsNotExist(err) {
-			fmt.Printf("%3.f%% %s\n", ((float64(i)+1)/float64(imgLength))*100, thumbnail)
-			// TODO: make this spawn simultaneous jobs
-			genthumb(filePath, thumbnail)
-			thumbsGenerated++
-		}
-	}
-	elapsed := time.Since(start)
-	if thumbsGenerated > 0 {
-		log.Printf("Generating %d thumbs took %s", thumbsGenerated, elapsed)
 	}
 
 	t, err := template.New("foo").Parse(`<!DOCTYPE html>
@@ -139,9 +150,7 @@ li a { flex: 1; border: thin dotted black; text-decoration: none; padding: 0.3em
 {{ range .Dirs }}<li><a href="{{ . }}">{{ . }}</a></li>
 {{ end }}
 </ol>
-{{ range .Images }}<a title="{{ . }}" href="/o{{ . }}">
-<img alt="" width=230 height=230 src="/t{{ . }}.jpg">
-</a>
+{{ range .Images }}<a title="{{ . }}" href="/o{{ . }}"><img alt="" width=230 height=230 src="/t{{ . }}"></a>
 {{ end }}
 <p>By <a href=https://github.com/kaihendry/lk>lk {{ .Version }}</a></p>
 </body>

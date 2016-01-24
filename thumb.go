@@ -24,7 +24,7 @@ func genthumb(src string, dst string) (err error) {
 		out, err := exec.Command(path, "-t", "-s", "460x460", "-o", dst, src).CombinedOutput()
 		if err != nil {
 			fmt.Printf("The output is %s\n", out)
-			log.Fatal(err)
+			log.Fatal("VIPS", err)
 		}
 		return err
 	}
@@ -36,7 +36,7 @@ func genthumb(src string, dst string) (err error) {
 
 	img, err := jpeg.Decode(file)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	file.Close()
 
