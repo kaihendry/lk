@@ -34,6 +34,7 @@ var port = flag.Int("port", 0, "listen port")
 
 func hostname() string {
 	hostname, _ := os.Hostname()
+	// If hostname does not have dots (i.e. not fully qualified), then return zeroconf address for LAN browsing
 	if strings.Split(hostname, ".")[0] == hostname {
 		return hostname + ".local"
 	}
@@ -66,8 +67,7 @@ func main() {
 	}
 
 	if a, ok := ln.Addr().(*net.TCPAddr); ok {
-		hostname := hostname()
-		host := fmt.Sprintf("http://%s:%d", hostname, a.Port)
+		host := fmt.Sprintf("http://%s:%d", hostname(), a.Port)
 		log.Println("Serving from", host)
 		open.Start(host)
 	}
