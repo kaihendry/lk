@@ -32,6 +32,14 @@ var gitVersion string
 var showVersionFlag = flag.Bool("version", false, "Show version")
 var port = flag.Int("port", 0, "listen port")
 
+func hostname() string {
+	hostname, _ := os.Hostname()
+	if strings.Split(hostname, ".")[0] == hostname {
+		return hostname + ".local"
+	}
+	return hostname
+}
+
 func main() {
 
 	flag.Parse()
@@ -57,8 +65,8 @@ func main() {
 		log.Panic(err)
 	}
 
-	hostname, _ := os.Hostname()
 	if a, ok := ln.Addr().(*net.TCPAddr); ok {
+		hostname := hostname()
 		host := fmt.Sprintf("http://%s:%d", hostname, a.Port)
 		log.Println("Serving from", host)
 		open.Start(host)
