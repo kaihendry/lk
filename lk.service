@@ -1,18 +1,10 @@
 [Unit]
-# sudo cp lk.service /etc/systemd/system/
-# sudo systemctl enable lk.service
 Description=https://github.com/kaihendry/lk
-After=docker.service
 Requires=docker.service
 
 [Service]
-TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill lk
-ExecStartPre=-/usr/bin/docker rm lk
 ExecStartPre=/usr/bin/docker pull hendry/lk
-ExecStart=/usr/bin/docker run --publish 3000:3000 --name lk --rm hendry/lk
-RestartSec=10
-Restart=always
+ExecStart=/usr/bin/docker run -v /mnt/raid1/familyscans:/srv -p 80:3000 --name lk --rm hendry/lk
 
 [Install]
 WantedBy=multi-user.target

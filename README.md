@@ -29,7 +29,7 @@ Using <https://caddyserver.com/>
 Caddyfile:
 
 	lk.dabase.com {
-		tls hendry@webconverger.com
+		tls hendry@example.com
 		proxy / lk:3000
 	}
 
