@@ -46,13 +46,13 @@ func main() {
 	flag.Parse()
 
 	if *showVersionFlag {
-		log.Println("lk", gitVersion, "https://github.com/kaihendry/lk")
+		fmt.Println("https://github.com/kaihendry/lk", gitVersion)
 		os.Exit(0)
 	}
 
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
-	
+
 	// Getting rid of /../ etc
 	dirPath = path.Clean(dirPath)
 
