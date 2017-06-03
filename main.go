@@ -93,15 +93,15 @@ func thumb(w http.ResponseWriter, r *http.Request) {
 			log.Println("ORIGINAL", srcPath, "does not exist")
 			http.NotFound(w, r)
 			return
-		} else {
-			log.Println("Must generate thumb for", srcPath)
-			err := genthumb(srcPath, thumbPath)
-			if err != nil {
-				http.Error(w, err.Error(), 400)
-				return
-			}
-			log.Println("Created thumb", thumbPath)
 		}
+
+		log.Println("Must generate thumb for", srcPath)
+		err := genthumb(srcPath, thumbPath)
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		log.Println("Created thumb", thumbPath)
 	}
 	log.Println("Serving thumb", thumbPath)
 	http.ServeFile(w, r, thumbPath)
@@ -147,7 +147,7 @@ func lk(w http.ResponseWriter, r *http.Request) {
 <head>
 <meta charset="utf-8" />
 <style>
-body { padding: 5px; font-size: 120%; }
+body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; padding: 5px; font-size: 2vw; }
 ol { display: flex-inline; padding: 0; }
 li { flex: 1; display: flex; padding-bottom: 0.4em; }
 li a { flex: 1; border: thin dotted black; text-decoration: none; padding: 0.3em; color: white; background-color: #0b5578; }
