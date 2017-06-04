@@ -46,12 +46,15 @@ func main() {
 	flag.Parse()
 
 	if *showVersionFlag {
-		log.Println("lk", gitVersion, "https://github.com/kaihendry/lk")
+		fmt.Println("https://github.com/kaihendry/lk", gitVersion)
 		os.Exit(0)
 	}
 
 	directory := flag.Arg(0)
 	dirPath, _ = filepath.Abs(directory)
+
+	// Getting rid of /../ etc
+	dirPath = path.Clean(dirPath)
 
 	// Don't allow path under dirPath to be viewed
 	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
@@ -79,16 +82,19 @@ func main() {
 
 func thumb(w http.ResponseWriter, r *http.Request) {
 
+	// Path cleaning
+	requestedPath := path.Clean(r.URL.Path[2:])
+
 	// Make sure you can't go under the dirPath
-	if !strings.HasPrefix(r.URL.Path[2:], dirPath) {
+	if !strings.HasPrefix(requestedPath, dirPath) {
 		http.NotFound(w, r)
 		return
 	}
 
-	thumbPath := filepath.Join(dirThumbs, r.URL.Path[2:])
+	thumbPath := filepath.Join(dirThumbs, requestedPath)
 	if _, err := os.Stat(thumbPath); err != nil {
 		log.Println("THUMB:", thumbPath, "does not exist")
-		srcPath := r.URL.Path[2:]
+		srcPath := requestedPath
 		if _, err := os.Stat(srcPath); err != nil {
 			log.Println("ORIGINAL", srcPath, "does not exist")
 			http.NotFound(w, r)
