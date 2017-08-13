@@ -4,15 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"image/jpeg"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/kaihendry/lk"
+	"github.com/nfnt/resize"
 	"github.com/pyk/byten"
 	"github.com/skratchdot/open-golang/open"
 )
@@ -34,7 +36,7 @@ func in(slice []string, str string) bool {
 var acceptedImageExt = []string{".jpg", ".jpeg", ".mp4", ".png"}
 var dirThumbs = fmt.Sprintf("%s%s", os.Getenv("HOME"), "/.cache/lk")
 var dirPath = "."
-var gitVersion string
+var version = "master"
 var showVersionFlag = flag.Bool("version", false, "Show version")
 var port = flag.Int("port", 0, "listen port")
 
@@ -52,7 +54,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersionFlag {
-		fmt.Println("https://github.com/kaihendry/lk", gitVersion)
+		fmt.Println("https://github.com/kaihendry/lk", version)
 		os.Exit(0)
 	}
 
@@ -108,7 +110,7 @@ func thumb(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Println("Must generate thumb for", srcPath)
-		err := lk.Genthumb(srcPath, thumbPath)
+		err := genthumb(srcPath, thumbPath)
 		if err != nil {
 			http.Error(w, err.Error(), 400)
 			return
@@ -187,7 +189,7 @@ body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-siz
 		Version string
 	}{
 		m,
-		gitVersion,
+		version,
 	}
 
 	t.Execute(w, data)
@@ -210,4 +212,49 @@ func markMedia(m media) template.HTML {
 	default:
 		return template.HTML(m.f.Name())
 	}
+}
+
+func genthumb(src string, dst string) (err error) {
+
+	dir, _ := filepath.Split(dst)
+	err = os.MkdirAll(dir, 0700)
+	if err != nil {
+		return err
+	}
+
+	// First if vipsthumbnail is around, use that, because it's crazy fast
+	path, err := exec.LookPath("vipsthumbnail")
+	if err == nil {
+		out, err := exec.Command(path, "-t", "-s", "460x460", "-o", dst, src).CombinedOutput()
+		if err != nil {
+			fmt.Printf("The output is %s\n", out)
+			return err
+		}
+		return err
+	}
+
+	file, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	img, err := jpeg.Decode(file)
+	if err != nil {
+		return err
+	}
+
+	m := resize.Thumbnail(460, 460, img, resize.NearestNeighbor)
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// write new image to file
+	jpeg.Encode(out, m, nil)
+
+	return
+
 }

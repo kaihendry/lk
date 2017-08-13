@@ -1,5 +1,5 @@
 build:
-  main: cmd/lk/main.go
+  main: main.go
   binary: lk
   goos:
     - windows
