@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/pyk/byten"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -148,12 +149,32 @@ func lk(w http.ResponseWriter, r *http.Request) {
 <head>
 <meta charset="utf-8" />
 <style>
-body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; padding: 5px; font-size: 2vw; }
+body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size: 2vw; margin: 0 }
+/* https://codepen.io/dudleystorey/pen/Kgofa */
+.media {
+	padding: .5vw;
+	flex-flow: row wrap;
+	display: flex;
+}
+.media div * {
+	width: 100%;
+	height: auto;
+}
+.media div {
+	flex: auto;
+	width: 230px;
+	margin: .5vw;
+}
+@media screen and (max-width: 400px) {
+	.media div { margin: 0; }
+	.media { padding: 0; }
+
+}
 </style>
 </head>
 <body>
 <section class=media>
-{{ range .Media }}{{ . | markMedia }}
+{{ range .Media }}<div>{{ . | markMedia }}</div>
 {{ end }}
 </section>
 <p>By <a href=https://github.com/kaihendry/lk>lk {{ .Version }}</a></p>
@@ -183,7 +204,7 @@ func markMedia(m media) template.HTML {
 		s := fmt.Sprintf("<a title=\"%s\" href=\"/o%s\"><img alt=\"\" width=230 height=230 src=\"/o%s\"></a>", m.filename, m.filename, m.filename)
 		return template.HTML(s)
 	case ".mp4":
-		s := fmt.Sprintf("<video title=\"%s\" controls width=230 height=230 src=\"/o%s\"></video>", m.filename, m.filename)
+		s := fmt.Sprintf("<video controls title=\"%s\" width=230 height=230 src=\"/o%s\"></video>", byten.Size(m.f.Size())+" "+m.filename, m.filename)
 		return template.HTML(s)
 	default:
 		return template.HTML(m.f.Name())
