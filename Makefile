@@ -1,11 +1,6 @@
-gitVersion := $(shell git rev-parse --short HEAD)
+include github.com/tj/make/golang
 
-lk: main.go thumb.go
-	time go build -ldflags "-X main.gitVersion=$(gitVersion)"
+release:
+	@goreleaser
 
-docker: lk
-	docker build -t lk .
-	docker run -it -p 3000:3000 --rm lk
-
-clean:
-	rm -rf lk
+.PHONY: release

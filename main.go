@@ -149,14 +149,13 @@ func lk(w http.ResponseWriter, r *http.Request) {
 <meta charset="utf-8" />
 <style>
 body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; padding: 5px; font-size: 2vw; }
-ol { display: flex-inline; padding: 0; }
-li { flex: 1; display: flex; padding-bottom: 0.4em; }
-li a { flex: 1; border: thin dotted black; text-decoration: none; padding: 0.3em; color: white; background-color: #0b5578; }
 </style>
 </head>
 <body>
+<section class=media>
 {{ range .Media }}{{ . | markMedia }}
 {{ end }}
+</section>
 <p>By <a href=https://github.com/kaihendry/lk>lk {{ .Version }}</a></p>
 </body>
 </html>`))
@@ -184,7 +183,7 @@ func markMedia(m media) template.HTML {
 		s := fmt.Sprintf("<a title=\"%s\" href=\"/o%s\"><img alt=\"\" width=230 height=230 src=\"/o%s\"></a>", m.filename, m.filename, m.filename)
 		return template.HTML(s)
 	case ".mp4":
-		s := fmt.Sprintf("<video controls width=230 height=230 src=\"/o%s\"></video>", m.filename)
+		s := fmt.Sprintf("<video title=\"%s\" controls width=230 height=230 src=\"/o%s\"></video>", m.filename, m.filename)
 		return template.HTML(s)
 	default:
 		return template.HTML(m.f.Name())
