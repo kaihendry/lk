@@ -1,4 +1,4 @@
-package main
+package lk
 
 import (
 	"fmt"
@@ -10,7 +10,8 @@ import (
 	"github.com/nfnt/resize"
 )
 
-func genthumb(src string, dst string) (err error) {
+// Generate a 460x460 thumbnail
+func Genthumb(src string, dst string) (err error) {
 
 	dir, _ := filepath.Split(dst)
 	err = os.MkdirAll(dir, 0700)

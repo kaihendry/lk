@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kaihendry/lk"
 	"github.com/pyk/byten"
 	"github.com/skratchdot/open-golang/open"
 )
@@ -65,7 +66,7 @@ func main() {
 	http.Handle("/o/", http.StripPrefix(path.Join("/o", dirPath), http.FileServer(http.Dir(dirPath))))
 	http.HandleFunc("/favicon.ico", http.NotFound)
 
-	http.HandleFunc("/", lk)
+	http.HandleFunc("/", index)
 	http.HandleFunc("/t/", thumb)
 
 	// http://stackoverflow.com/a/33985208/4534
@@ -107,7 +108,7 @@ func thumb(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Println("Must generate thumb for", srcPath)
-		err := genthumb(srcPath, thumbPath)
+		err := lk.Genthumb(srcPath, thumbPath)
 		if err != nil {
 			http.Error(w, err.Error(), 400)
 			return
@@ -132,7 +133,7 @@ func findmedia(m *[]media) func(filename string, f os.FileInfo, err error) error
 	}
 }
 
-func lk(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, r *http.Request) {
 
 	srcPath := filepath.Join(dirPath, r.URL.Path)
 
