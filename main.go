@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/nfnt/resize"
@@ -39,6 +40,7 @@ var dirPath = "."
 var version = "master"
 var showVersionFlag = flag.Bool("version", false, "Show version")
 var port = flag.Int("port", 0, "listen port")
+var openbrowser = flag.Bool("openbrowser", true, "Open in browser")
 
 func hostname() string {
 	hostname, _ := os.Hostname()
@@ -72,6 +74,10 @@ func main() {
 	http.HandleFunc("/t/", thumb)
 
 	// http://stackoverflow.com/a/33985208/4534
+	eport := os.Getenv("PORT")
+	if eport != "" {
+		*port, _ = strconv.Atoi(eport)
+	}
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 		log.Panic(err)
@@ -79,8 +85,10 @@ func main() {
 
 	if a, ok := ln.Addr().(*net.TCPAddr); ok {
 		host := fmt.Sprintf("http://%s:%d", hostname(), a.Port)
-		log.Println("Serving from", host)
-		open.Start(host)
+		fmt.Println("Serving from", host)
+		if *openbrowser {
+			open.Start(host)
+		}
 	}
 	if err := http.Serve(ln, nil); err != nil {
 		log.Panic(err)
@@ -201,13 +209,13 @@ body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-siz
 func markMedia(m media) template.HTML {
 	switch strings.ToLower(path.Ext(m.filename)) {
 	case ".jpg":
-		s := fmt.Sprintf("<a title=\"%s\" href=\"/o%s\"><img alt=\"\" width=230 height=230 src=\"/t%s\"></a>", m.filename, m.filename, m.filename)
+		s := fmt.Sprintf("<a title=\"%s\" href=\"o%s\"><img alt=\"\" width=230 height=230 src=\"t%s\"></a>", m.filename, m.filename, m.filename)
 		return template.HTML(s)
 	case ".png":
-		s := fmt.Sprintf("<a title=\"%s\" href=\"/o%s\"><img alt=\"\" width=230 height=230 src=\"/o%s\"></a>", m.filename, m.filename, m.filename)
+		s := fmt.Sprintf("<a title=\"%s\" href=\"o%s\"><img alt=\"\" width=230 height=230 src=\"o%s\"></a>", m.filename, m.filename, m.filename)
 		return template.HTML(s)
 	case ".mp4":
-		s := fmt.Sprintf("<video controls title=\"%s\" width=230 height=230 src=\"/o%s\"></video>", byten.Size(m.f.Size())+" "+m.filename, m.filename)
+		s := fmt.Sprintf("<video controls title=\"%s\" width=230 height=230 src=\"o%s\"></video>", byten.Size(m.f.Size())+" "+m.filename, m.filename)
 		return template.HTML(s)
 	default:
 		return template.HTML(m.f.Name())

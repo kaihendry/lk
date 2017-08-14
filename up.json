@@ -1,0 +1,7 @@
+{
+	"profile": "mine",
+	"regions": ["ap-southeast-1"],
+	"environment": {
+		"HOME": "/tmp"
+	}
+}
