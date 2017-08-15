@@ -134,6 +134,11 @@ func findmedia(m *[]media) func(filename string, f os.FileInfo, err error) error
 		if err != nil {
 			return err
 		}
+		base := filepath.Base(filename)
+		if strings.HasPrefix(base, ".") || strings.HasPrefix(base, "_") {
+			// Skip hidden files
+			return nil
+		}
 		// log.Printf("Visited: %s\n", filename)
 		if !f.IsDir() && in(acceptedImageExt, strings.ToLower(path.Ext(filename))) {
 			// log.Printf("Adding: %s\n%+v\n", filename, f)
