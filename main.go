@@ -125,7 +125,6 @@ func thumb(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Println("Created thumb", thumbPath)
 	}
-	log.Println("Serving thumb", thumbPath)
 	http.ServeFile(w, r, thumbPath)
 }
 
