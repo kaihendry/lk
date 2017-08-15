@@ -21,8 +21,8 @@ import (
 )
 
 type media struct {
-	filename string
-	f        os.FileInfo
+	Filename string
+	Fileinfo os.FileInfo
 }
 
 func in(slice []string, str string) bool {
@@ -155,7 +155,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 	t := template.New("medialist")
 
-	template.Must(t.Funcs(template.FuncMap{"markMedia": markMedia}).Parse(`<!DOCTYPE html>
+	template.Must(t.Funcs(template.FuncMap{"matchType": matchType, "size": byten.Size}).Parse(`<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
@@ -167,17 +167,17 @@ body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-siz
 	flex-flow: row wrap;
 	display: flex;
 }
-.media div * {
+.media figure * {
 	width: 100%;
 	height: auto;
 }
-.media div {
+.media figure {
 	flex: auto;
 	width: 230px;
 	margin: .5vw;
 }
 @media screen and (max-width: 400px) {
-	.media div { margin: 0; }
+	.media figure { margin: 0; }
 	.media { padding: 0; }
 
 }
@@ -185,41 +185,36 @@ body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-siz
 </head>
 <body>
 <section class=media>
-{{ range .Media }}<div>{{ . | markMedia }}</div>
+{{ range .Media }}<figure>
+{{if . | matchType ".jpg"}}<a title="{{ .Fileinfo.Size | size }}" href="o{{.Filename}}"><img src="t{{.Filename}}"></a>
+{{else if . | matchType ".png"}}<a title="{{ .Fileinfo.Size | size }}" href="o{{.Filename}}"><img src="o{{.Filename}}"></a>
+{{else if . | matchType ".mp4"}}<video title="{{ .Fileinfo.Size | size }}" preload=metadata controls src=o{{.Filename}}>Video: {{.Filename}}</video>
+{{else}}{{.}}
+{{end}}</figure>
 {{ end }}
 </section>
 <p>By <a href=https://github.com/kaihendry/lk>lk {{ .Version }}</a></p>
 </body>
 </html>`))
 
-	data := struct {
+	err = t.Execute(w, struct {
 		Media   []media
 		Version string
 	}{
-		m,
-		version,
-	}
+		Media:   m,
+		Version: version,
+	})
 
-	t.Execute(w, data)
+	if err != nil {
+		panic(err)
+	}
 
 	log.Printf("%s %s %s %s\n", r.RemoteAddr, r.Method, r.URL, r.UserAgent())
 
 }
 
-func markMedia(m media) template.HTML {
-	switch strings.ToLower(path.Ext(m.filename)) {
-	case ".jpg":
-		s := fmt.Sprintf("<a title=\"%s\" href=\"o%s\"><img alt=\"\" width=230 height=230 src=\"t%s\"></a>", m.filename, m.filename, m.filename)
-		return template.HTML(s)
-	case ".png":
-		s := fmt.Sprintf("<a title=\"%s\" href=\"o%s\"><img alt=\"\" width=230 height=230 src=\"o%s\"></a>", m.filename, m.filename, m.filename)
-		return template.HTML(s)
-	case ".mp4":
-		s := fmt.Sprintf("<video controls title=\"%s\" width=230 height=230 src=\"o%s\"></video>", byten.Size(m.f.Size())+" "+m.filename, m.filename)
-		return template.HTML(s)
-	default:
-		return template.HTML(m.f.Name())
-	}
+func matchType(ext string, m media) bool {
+	return strings.ToLower(ext) == strings.ToLower(path.Ext(m.Filename))
 }
 
 func genthumb(src string, dst string) (err error) {
