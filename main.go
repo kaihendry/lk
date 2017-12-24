@@ -40,7 +40,7 @@ var dirPath = "."
 var version = "master"
 var showVersionFlag = flag.Bool("version", false, "Show version")
 var port = flag.Int("port", 0, "listen port")
-var openbrowser = flag.Bool("openbrowser", true, "Open in browser")
+var openbrowser = flag.Bool("openbrowser", false, "Open in browser")
 
 func hostname() string {
 	hostname, _ := os.Hostname()
@@ -125,6 +125,7 @@ func thumb(w http.ResponseWriter, r *http.Request) {
 		}
 		log.Println("Created thumb", thumbPath)
 	}
+	w.Header().Set("Content-Type", "image/jpeg")
 	http.ServeFile(w, r, thumbPath)
 }
 
@@ -192,7 +193,7 @@ body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-siz
 {{ range .Media }}<figure>
 {{if . | matchType ".jpg"}}<a title="{{ .Fileinfo.Size | size }}" href="o{{.Filename}}"><img src="t{{.Filename}}"></a>
 {{else if . | matchType ".png"}}<a title="{{ .Fileinfo.Size | size }}" href="o{{.Filename}}"><img src="o{{.Filename}}"></a>
-{{else if . | matchType ".mp4"}}<video title="{{ .Fileinfo.Size | size }}" preload=none controls src=o{{.Filename}}>Video: {{.Filename}}</video>
+{{else if . | matchType ".mp4"}}<video title="{{ .Fileinfo.Size | size }}" poster="t{{.Filename}}" preload=none controls src=o{{.Filename}}>Video: {{.Filename}}</video>
 {{else}}{{.}}
 {{end}}</figure>
 {{ end }}
@@ -221,13 +222,7 @@ func matchType(ext string, m media) bool {
 	return strings.ToLower(ext) == strings.ToLower(path.Ext(m.Filename))
 }
 
-func genthumb(src string, dst string) (err error) {
-
-	dir, _ := filepath.Split(dst)
-	err = os.MkdirAll(dir, 0700)
-	if err != nil {
-		return err
-	}
+func genJPGthumb(src string, dst string) (err error) {
 
 	// First if vipsthumbnail is around, use that, because it's crazy fast
 	path, err := exec.LookPath("vipsthumbnail")
@@ -261,6 +256,33 @@ func genthumb(src string, dst string) (err error) {
 
 	// write new image to file
 	jpeg.Encode(out, m, nil)
+
+	return
+}
+
+func genthumb(src string, dst string) (err error) {
+
+	dir, _ := filepath.Split(dst)
+	err = os.MkdirAll(dir, 0700)
+	if err != nil {
+		return err
+	}
+
+	switch mediatype := strings.ToLower(path.Ext(src)); mediatype {
+	case ".jpg":
+		return genJPGthumb(src, dst)
+	default:
+		path, err := exec.LookPath("ffmpeg")
+		if err == nil {
+			out, err := exec.Command(path, "-y", "-ss", "0.5", "-i", src, "-vframes", "1", "-f", "image2", dst).CombinedOutput()
+			if err != nil {
+				log.Printf("The output is %s\n", out)
+				return err
+			}
+			return err
+		}
+		return fmt.Errorf("unknown mediatype: %s", mediatype)
+	}
 
 	return
 
