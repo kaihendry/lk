@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -158,6 +159,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
+	// Largest file first
+	sort.Slice(m, func(i, j int) bool {
+		return m[i].Fileinfo.Size() > m[j].Fileinfo.Size()
+	})
+
 	t := template.New("medialist")
 
 	template.Must(t.Funcs(template.FuncMap{"matchType": matchType, "size": byten.Size}).Parse(`<!DOCTYPE html>
@@ -229,7 +235,7 @@ func genJPGthumb(src string, dst string) (err error) {
 	if err == nil {
 		out, err := exec.Command(path, "-t", "-s", "460x460", "-o", dst, src).CombinedOutput()
 		if err != nil {
-			fmt.Printf("The output is %s\n", out)
+			fmt.Printf("Command output is %s\n", out)
 			return err
 		}
 		return err
@@ -276,7 +282,7 @@ func genthumb(src string, dst string) (err error) {
 		if err == nil {
 			out, err := exec.Command(path, "-y", "-ss", "0.5", "-i", src, "-vframes", "1", "-f", "image2", dst).CombinedOutput()
 			if err != nil {
-				log.Printf("The output is %s\n", out)
+				log.Printf("Command output is %s\n", out)
 				return err
 			}
 			return err
