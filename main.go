@@ -192,7 +192,7 @@ body { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; font-siz
 {{ range .Media }}<figure>
 {{if . | matchType ".jpg"}}<a title="{{ .Fileinfo.Size | size }}" href="o{{.Filename}}"><img src="t{{.Filename}}"></a>
 {{else if . | matchType ".png"}}<a title="{{ .Fileinfo.Size | size }}" href="o{{.Filename}}"><img src="o{{.Filename}}"></a>
-{{else if . | matchType ".mp4"}}<video title="{{ .Fileinfo.Size | size }}" preload=metadata controls src=o{{.Filename}}>Video: {{.Filename}}</video>
+{{else if . | matchType ".mp4"}}<video title="{{ .Fileinfo.Size | size }}" preload=none controls src=o{{.Filename}}>Video: {{.Filename}}</video>
 {{else}}{{.}}
 {{end}}</figure>
 {{ end }}
