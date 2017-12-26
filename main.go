@@ -277,19 +277,19 @@ func genthumb(src string, dst string) (err error) {
 	switch mediatype := strings.ToLower(path.Ext(src)); mediatype {
 	case ".jpg":
 		return genJPGthumb(src, dst)
-	default:
+	case ".mp4":
 		path, err := exec.LookPath("ffmpeg")
+		if err != nil {
+			path, err = exec.LookPath("./ffmpeg")
+		}
 		if err == nil {
 			out, err := exec.Command(path, "-y", "-ss", "0.5", "-i", src, "-vframes", "1", "-f", "image2", dst).CombinedOutput()
 			if err != nil {
 				log.Printf("Command output is %s\n", out)
-				return err
 			}
-			return err
 		}
+		return err
+	default:
 		return fmt.Errorf("unknown mediatype: %s", mediatype)
 	}
-
-	return
-
 }
